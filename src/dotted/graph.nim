@@ -17,13 +17,12 @@ type
         name*: Option[string] # graph name used in source code
         isDirected* : bool
         comment*: Option[string] # added to first line of source
-        format*: Option[string] # rendering output format
         engine*: Option[string] # layout command 
-        encoding*: Option[string] # default utf-8
+        charset*: Option[string] # default utf-8
         graphAttrs*: seq[AttrValue] # for the graph
         nodeAttrs*: seq[AttrValue] # for all nodes
         edgeAttrs*: seq[AttrValue] # for all edges
-        strict*: bool # should merge multi-edges
+        concentrate*: bool # should merge multi-edges
         edges*: seq[Edge]
         nodes*: seq[Node]
 

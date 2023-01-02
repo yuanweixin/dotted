@@ -50,3 +50,36 @@ test "double quoting string, escString and lblString attribute values":
     .edge("A", "L", attrs=[("xdotversion", "42")])
     .edge("B", "L", attrs=[("constraint", "false")])
   whitespaceIndiffCmp(expected, g.render())
+
+test "use concentrate": 
+  let expected = 
+    """digraph {
+        concentrate=true
+        A
+    }"""
+  var g = newGraph(true)
+  g.concentrate = true 
+  discard g.node("A")
+  whitespaceIndiffCmp(expected, g.render())
+
+test "charset":
+  let expected = 
+    """digraph {
+        charset="UTF-8"
+        A
+    }"""
+  var g = newGraph(true)
+  g.charset = some("UTF-8") # case insensitive https://graphviz.org/docs/attrs/charset/
+  discard g.node("A")
+  whitespaceIndiffCmp(expected, g.render()) 
+
+test "engine":
+  let expected = 
+    """digraph {
+        layout="neato"
+        A
+    }"""
+  var g = newGraph(true)
+  g.engine = some("neato") # https://graphviz.org/docs/attrs/layout/
+  discard g.node("A")
+  whitespaceIndiffCmp(expected, g.render()) 

@@ -78,8 +78,14 @@ proc render*(g: Graph) : string =
     else:
       result.add "graph {graphAttrs}{{\n".fmt
 
+  if g.concentrate:
+    result.add "\tconcentrate=true\n"
+
   if g.engine.isSome:
-    result.add "\tlayout={g.engine.get}\n"
+    result.add "\tlayout=\"{g.engine.get}\"\n".fmt
+
+  if g.charset.isSome:
+    result.add "\tcharset=\"{g.charset.get}\"\n".fmt
 
   for node in g.nodes:
     genNode(result, node, g.nodeAttrs)
