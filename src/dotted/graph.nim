@@ -15,11 +15,11 @@ type
     Graph* = ref GraphObj 
     GraphObj* = object 
         name*: Option[string] # graph name used in source code
-        isDirected* : bool
+        isDirected* : bool # digraph or graph 
         comment*: Option[string] # added to first line of source
-        engine*: Option[string] # layout command 
-        charset*: Option[string] # default utf-8
-        graphAttrs*: seq[AttrValue] # for the graph
+        engine*: Option[string] # which layout engine to use 
+        charset*: Option[string] # char encoding used by graphviz to interpret
+        graphAttrs*: seq[AttrValue] # graph attributes 
         nodeAttrs*: seq[AttrValue] # for all nodes
         edgeAttrs*: seq[AttrValue] # for all edges
         concentrate*: bool # should merge multi-edges
