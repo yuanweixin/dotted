@@ -83,3 +83,21 @@ test "engine":
   g.engine = some("neato") # https://graphviz.org/docs/attrs/layout/
   discard g.node("A")
   whitespaceIndiffCmp(expected, g.render()) 
+
+test "global attributes":
+  let expected = 
+    """digraph {
+        node [knotty=rope spicy=pepper]
+        edge [edgey=saucer milky=way]
+        layout="neato"
+        A
+    }"""
+  var g = newGraph(true)
+  g.nodeAttrs.add ("knotty", "rope")
+  g.nodeAttrs.add ("spicy", "pepper")
+  g.edgeAttrs.add ("edgey", "saucer")
+  g.edgeAttrs.add ("milky", "way")
+  
+  g.engine = some("neato") # https://graphviz.org/docs/attrs/layout/
+  discard g.node("A")
+  whitespaceIndiffCmp(expected, g.render()) 

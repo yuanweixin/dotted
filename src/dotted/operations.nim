@@ -25,7 +25,8 @@ proc node*(g: Graph, name: string, label: Option[string]=none(string), attrs: op
 proc needsDoubleQuoting(attrName: string) : bool = 
   return attrName in stringAttrNames or attrName in escStringAttrNames or attrName in lblStringAttrNames
 
-proc addAttrs(fst: var bool, s: var string, attrs: openarray[AttrValue]) = 
+proc addAttrs(s: var string, attrs: openarray[AttrValue]) = 
+  var fst = true 
   for _,(a,v) in attrs:
     if not fst:
       s.add " "
@@ -35,37 +36,34 @@ proc addAttrs(fst: var bool, s: var string, attrs: openarray[AttrValue]) =
     else:
       s.add &"{a}={v}"
 
-proc genLabels(s: var string, globalAttrs: openarray[AttrValue], label: Option[string], lclAttrs: openarray[AttrValue]) = 
-  if label.isSome or globalAttrs.len > 0 or lclAttrs.len > 0:
-    var fst: bool = true 
+proc genLabels(s: var string, label: Option[string], lclAttrs: openarray[AttrValue]) = 
+  if label.isSome or lclAttrs.len > 0:
     s.add " ["
     if label.isSome:
-      addAttrs(fst, s, [("label", label.get)])
-    addAttrs(fst, s, globalAttrs)
-    addAttrs(fst, s, lclAttrs)
+      addAttrs(s, [("label", label.get)])
+    addAttrs(s, lclAttrs)
     s.add "]\n"
   else:
     s.add "\n"
 
-proc genNode(s: var string, node: Node, globalAttrs: openarray[AttrValue]) = 
+proc genNode(s: var string, node: Node) = 
   s.add &"\t{node.name}"
-  genLabels(s, globalAttrs, node.label, node.attrs)      
+  genLabels(s, node.label, node.attrs)      
 
-proc genEdge(s: var string, isDirected: bool, edge: Edge, globalAttrs: openarray[AttrValue]) = 
+proc genEdge(s: var string, isDirected: bool, edge: Edge) = 
   if isDirected:
     s.add &"\t{edge.startName} -> {edge.endName}"
   else:
     s.add &"\t{edge.startName} -- {edge.endName}"
-  genLabels(s, globalAttrs, edge.label, edge.attrs)
+  genLabels(s, edge.label, edge.attrs)
 
 proc render*(g: Graph) : string = 
   if g.comment.isSome:
     result.add "// {g.comment.get}\n".fmt
   var graphAttrs = ""
   if g.graphAttrs.len > 0:
-    var fst: bool = true 
     graphAttrs.add "["
-    addAttrs(fst, graphAttrs, g.graphAttrs)
+    addAttrs(graphAttrs, g.graphAttrs)
     graphAttrs.add "] "
   if g.isDirected:
     if g.name.isSome:
@@ -78,6 +76,16 @@ proc render*(g: Graph) : string =
     else:
       result.add "graph {graphAttrs}{{\n".fmt
 
+  if g.nodeAttrs.len > 0:
+    result.add "\tnode ["
+    addAttrs(result, g.nodeAttrs)
+    result.add "]\n"
+
+  if g.edgeAttrs.len > 0:
+    result.add "\tedge ["
+    addAttrs(result, g.edgeAttrs)
+    result.add "]\n"
+
   if g.concentrate:
     result.add "\tconcentrate=true\n"
 
@@ -88,10 +96,10 @@ proc render*(g: Graph) : string =
     result.add "\tcharset=\"{g.charset.get}\"\n".fmt
 
   for node in g.nodes:
-    genNode(result, node, g.nodeAttrs)
+    genNode(result, node)
 
   for edge in g.edges:
-    genEdge(result, g.isDirected, edge, g.edgeAttrs)
+    genEdge(result, g.isDirected, edge)
 
   result.add "}"
   
