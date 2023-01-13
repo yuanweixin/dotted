@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.1"
+version       = "1.0.2"
 author        = "Wei Xin Yuan"
 description   = "Library to generate dot files for graphviz"
 license       = "MIT"
