@@ -36,26 +36,28 @@ proc addAttrs(s: var string, attrs: openarray[AttrValue]) =
     else:
       s.add &"{a}={v}"
 
-proc genLabels(s: var string, label: Option[string], lclAttrs: openarray[AttrValue]) = 
+proc renderLabel(s: var string, label: Option[string], lclAttrs: openarray[AttrValue]) = 
   if label.isSome or lclAttrs.len > 0:
     s.add " ["
     if label.isSome:
       addAttrs(s, [("label", label.get)])
+    if lclAttrs.len > 0:
+      s.add " "
     addAttrs(s, lclAttrs)
     s.add "]\n"
   else:
     s.add "\n"
 
-proc genNode(s: var string, node: Node) = 
+proc renderNode(s: var string, node: Node) = 
   s.add &"\t{node.name}"
-  genLabels(s, node.label, node.attrs)      
+  renderLabel(s, node.label, node.attrs)      
 
-proc genEdge(s: var string, isDirected: bool, edge: Edge) = 
+proc renderEdge(s: var string, isDirected: bool, edge: Edge) = 
   if isDirected:
     s.add &"\t{edge.startName} -> {edge.endName}"
   else:
     s.add &"\t{edge.startName} -- {edge.endName}"
-  genLabels(s, edge.label, edge.attrs)
+  renderLabel(s, edge.label, edge.attrs)
 
 proc render*(g: Graph) : string = 
   if g.comment.isSome:
@@ -96,10 +98,10 @@ proc render*(g: Graph) : string =
     result.add "\tcharset=\"{g.charset.get}\"\n".fmt
 
   for node in g.nodes:
-    genNode(result, node)
+    renderNode(result, node)
 
   for edge in g.edges:
-    genEdge(result, g.isDirected, edge)
+    renderEdge(result, g.isDirected, edge)
 
   result.add "}"
   
