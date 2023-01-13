@@ -41,8 +41,8 @@ proc renderLabel(s: var string, label: Option[string], lclAttrs: openarray[AttrV
     s.add " ["
     if label.isSome:
       addAttrs(s, [("label", label.get)])
-    if lclAttrs.len > 0:
-      s.add " "
+      if lclAttrs.len > 0:
+        s.add " "
     addAttrs(s, lclAttrs)
     s.add "]\n"
   else:
