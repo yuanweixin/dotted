@@ -1,8 +1,9 @@
 import graph
-import std/options
+import options
 import sequtils
-import std/strformat
-import std/sets
+import strformat
+import sets
+import strutils
 
 # the string, lblString and escString attr types need double quoting. 
 # see https://graphviz.org/docs/attr-types/string/
@@ -25,6 +26,13 @@ proc node*(g: Graph, name: string, label: Option[string]=none(string), attrs: op
 proc needsDoubleQuoting(attrName: string) : bool = 
   return attrName in stringAttrNames or attrName in escStringAttrNames or attrName in lblStringAttrNames
 
+# https://graphviz.org/doc/info/lang.html
+# In quoted strings in DOT, the only escaped character is double-quote ". That is, in quoted strings, the dyad \" is converted to "; all other characters are left unchanged. In particular, \\ remains \\. Layout engines may apply additional escape sequences.
+func quote(s:string) : string = 
+  result.add "\""
+  result.add s.replace("\"", "\\\"")
+  result.add "\""
+
 proc addAttrs(s: var string, attrs: openarray[AttrValue]) = 
   var fst = true 
   for _,(a,v) in attrs:
@@ -32,7 +40,7 @@ proc addAttrs(s: var string, attrs: openarray[AttrValue]) =
       s.add " "
     fst = false
     if needsDoubleQuoting(a):
-      s.add &"{a}=\"{v}\""
+      s.add &"{a}={quote v}"
     else:
       s.add &"{a}={v}"
 
@@ -69,12 +77,12 @@ proc render*(g: Graph) : string =
     graphAttrs.add "] "
   if g.isDirected:
     if g.name.isSome:
-      result.add "digraph \"{g.name.get}\" {graphAttrs}{{\n".fmt
+      result.add "digraph {quote g.name.get} {graphAttrs}{{\n".fmt
     else:
       result.add "digraph {graphAttrs}{{\n".fmt
   else:
     if g.name.isSome:
-      result.add "graph \"{g.name.get}\" {graphAttrs}{{\n".fmt
+      result.add "graph {quote g.name.get} {graphAttrs}{{\n".fmt
     else:
       result.add "graph {graphAttrs}{{\n".fmt
 
@@ -92,10 +100,10 @@ proc render*(g: Graph) : string =
     result.add "\tconcentrate=true\n"
 
   if g.engine.isSome:
-    result.add "\tlayout=\"{g.engine.get}\"\n".fmt
+    result.add "\tlayout={quote g.engine.get}\n".fmt
 
   if g.charset.isSome:
-    result.add "\tcharset=\"{g.charset.get}\"\n".fmt
+    result.add "\tcharset={quote g.charset.get}\n".fmt
 
   for node in g.nodes:
     renderNode(result, node)

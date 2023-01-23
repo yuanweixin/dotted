@@ -101,3 +101,14 @@ test "global attributes":
   g.engine = some("neato") # https://graphviz.org/docs/attrs/layout/
   discard g.node("A")
   whitespaceIndiffCmp(expected, g.render()) 
+
+test "digraph, escape double quotes in label":
+  let expected = 
+    """digraph "test" {
+        A [label="hello=\"world\""]
+    }"""
+  var g = newGraph(true)
+  g.name = some("test")
+  let label = "hello=\"world\""
+  discard g.node("A", some label)
+  whitespaceIndiffCmp(expected, g.render())
